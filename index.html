@@ -50,7 +50,56 @@
       width: 0%;
       transition: width 0.4s ease;
     }
-    input {
+    
+    /* Milestone Badges */
+    .milestones {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .badge {
+      background: #0f172a;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #334155;
+      color: #64748b;
+    }
+    .badge.unlocked {
+      border-color: #22c55e;
+      color: #22c55e;
+      background: rgba(34, 197, 94, 0.1);
+      font-weight: bold;
+    }
+
+    /* Tabs */
+    .tab-container {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 8px;
+      font-size: 0.85rem;
+      background: #0f172a;
+      color: #94a3b8;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 0;
+    }
+    .tab-btn.active {
+      background: #2563eb;
+      color: #fff;
+      border-color: #2563eb;
+    }
+
+    input, button, select {
       width: 100%;
       padding: 12px;
       margin-top: 8px;
@@ -62,21 +111,34 @@
       box-sizing: border-box;
     }
     button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 12px;
-      border-radius: 8px;
-      border: none;
       background: #2563eb;
       color: #ffffff;
       font-weight: bold;
-      font-size: 1rem;
       cursor: pointer;
+      border: none;
     }
-    button:hover {
-      background: #1d4ed8;
+    button:hover { background: #1d4ed8; }
+
+    .btn-secondary {
+      background: #334155;
+      font-size: 0.8rem;
+      padding: 6px 10px;
+      margin-top: 0;
+      width: auto;
     }
+    .btn-secondary:hover { background: #475569; }
+
+    .btn-danger {
+      background: #ef4444;
+      font-size: 0.8rem;
+      padding: 6px 10px;
+      margin-top: 0;
+      width: auto;
+    }
+    .btn-danger:hover { background: #dc2626; }
+
     .hidden { display: none; }
+    
     .split-box {
       background: #0f172a;
       padding: 12px;
@@ -84,7 +146,37 @@
       margin-top: 12px;
       border-left: 4px solid #3b82f6;
     }
+    .slider-group {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+    .slider-group input { padding: 0; margin-top: 4px; }
     .accent { color: #22c55e; font-weight: bold; }
+
+    /* History List */
+    .history-list {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0 0 0;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .history-item {
+      background: #0f172a;
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 3px solid #22c55e;
+      font-size: 0.9rem;
+    }
+    .history-item.direct { border-left-color: #38bdf8; }
+    .history-item .details { display: flex; flex-direction: column; }
+    .history-item .date { font-size: 0.75rem; color: #94a3b8; }
+    .empty-history { color: #94a3b8; font-size: 0.875rem; font-style: italic; margin: 8px 0; }
   </style>
 </head>
 <body>
@@ -99,55 +191,210 @@
         <div class="progress-bar" id="progress-bar"></div>
       </div>
       <p id="progress-percent" style="text-align: right; margin: 0; font-size: 0.875rem; color: #94a3b8;">0% Complete</p>
+
+      <div class="milestones">
+        <div class="badge" id="m1">📱 Infinix GT 30 Pro <span>Ksh 38,000</span></div>
+        <div class="badge" id="m2">📸 Canon EOS 2000D <span>Ksh 89,000</span></div>
+        <div class="badge" id="m3">🎮 PS5 Slim + Setup <span>Ksh 170,000</span></div>
+      </div>
     </div>
 
     <div class="card">
-      <h3 style="margin-top: 0;">📥 Log Gig Payout</h3>
-      <label for="gig-amount" style="font-size: 0.875rem; color: #94a3b8;">Payout Amount (Ksh):</label>
-      <input type="number" id="gig-amount" placeholder="e.g. 5000">
-      <button onclick="calculateSplit()">Calculate Split</button>
+      <div class="tab-container">
+        <button class="tab-btn active" id="tab-gig-btn" onclick="switchTab('gig')">Gig Split</button>
+        <button class="tab-btn" id="tab-direct-btn" onclick="switchTab('direct')">Direct Deposit</button>
+      </div>
 
-      <div id="split-results" class="hidden">
-        <div class="split-box">
-          <p style="margin: 4px 0;">🔒 <strong>Loop Savings (20%):</strong> Ksh <span id="save-split">0</span></p>
-          <p style="margin: 4px 0;">🛒 Essentials (70%): Ksh <span id="essentials-split">0</span></p>
-          <p style="margin: 4px 0;">📈 Trading Buffer (10%): Ksh <span id="trading-split">0</span></p>
+      <div id="mode-gig">
+        <label for="gig-amount" style="font-size: 0.875rem; color: #94a3b8;">Payout Amount (Ksh):</label>
+        <input type="number" id="gig-amount" placeholder="e.g. 5000">
+
+        <div class="slider-group">
+          <label>Savings Allocation Ratio: <strong id="ratio-val" class="accent">20%</strong></label>
+          <input type="range" id="save-ratio" min="5" max="50" value="20" oninput="updateRatioLabel()">
         </div>
-        <button onclick="confirmDeposit()" style="background: #16a34a;">Confirm & Add to Loop Balance</button>
+
+        <button onclick="calculateSplit()">Calculate Split</button>
+
+        <div id="split-results" class="hidden">
+          <div class="split-box">
+            <p style="margin: 4px 0;">🔒 <strong>Loop Savings (<span id="save-pct-label">20</span>%):</strong> Ksh <span id="save-split">0</span></p>
+            <p style="margin: 4px 0;">🛒 Essentials: Ksh <span id="essentials-split">0</span></p>
+            <p style="margin: 4px 0;">📈 Trading Buffer (10%): Ksh <span id="trading-split">0</span></p>
+          </div>
+          <button onclick="confirmGigDeposit()" style="background: #16a34a;">Confirm & Deposit to Loop</button>
+        </div>
+      </div>
+
+      <div id="mode-direct" class="hidden">
+        <label for="direct-amount" style="font-size: 0.875rem; color: #94a3b8;">Direct Loop Transfer (Ksh):</label>
+        <input type="number" id="direct-amount" placeholder="e.g. 1000">
+        <button onclick="confirmDirectDeposit()" style="background: #38bdf8; color: #0f172a;">Log Direct Transfer</button>
       </div>
     </div>
+
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <h3 style="margin: 0;">📜 Loop History</h3>
+        <div>
+          <button onclick="exportCSV()" class="btn-secondary">Export CSV</button>
+          <button onclick="clearHistory()" class="btn-danger">Clear</button>
+        </div>
+      </div>
+      <ul id="history-list" class="history-list"></ul>
+    </div>
+
   </div>
 
   <script>
     const GOAL = 170000;
     let currentSavings = parseFloat(localStorage.getItem('loopSavings')) || 0;
+    let depositHistory = JSON.parse(localStorage.getItem('loopHistory')) || [];
     let pendingSavings = 0;
+    let pendingGig = 0;
+
+    function switchTab(mode) {
+      if (mode === 'gig') {
+        document.getElementById('mode-gig').classList.remove('hidden');
+        document.getElementById('mode-direct').classList.add('hidden');
+        document.getElementById('tab-gig-btn').classList.add('active');
+        document.getElementById('tab-direct-btn').classList.remove('active');
+      } else {
+        document.getElementById('mode-gig').classList.add('hidden');
+        document.getElementById('mode-direct').classList.remove('hidden');
+        document.getElementById('tab-gig-btn').classList.remove('active');
+        document.getElementById('tab-direct-btn').classList.add('active');
+      }
+    }
+
+    function updateRatioLabel() {
+      const val = document.getElementById('save-ratio').value;
+      document.getElementById('ratio-val').innerText = val + '%';
+      if (!document.getElementById('split-results').classList.contains('hidden')) {
+        calculateSplit();
+      }
+    }
 
     function updateUI() {
       document.getElementById('current-savings').innerText = currentSavings.toLocaleString();
       const percentage = Math.min((currentSavings / GOAL) * 100, 100).toFixed(1);
       document.getElementById('progress-bar').style.width = percentage + '%';
       document.getElementById('progress-percent').innerText = percentage + '% Complete';
+
+      // Update Milestones
+      document.getElementById('m1').classList.toggle('unlocked', currentSavings >= 38000);
+      document.getElementById('m2').classList.toggle('unlocked', currentSavings >= 89000);
+      document.getElementById('m3').classList.toggle('unlocked', currentSavings >= 170000);
+
+      // Update History List
+      const historyList = document.getElementById('history-list');
+      historyList.innerHTML = '';
+
+      if (depositHistory.length === 0) {
+        historyList.innerHTML = '<p class="empty-history">No deposits logged yet.</p>';
+        return;
+      }
+
+      depositHistory.slice().reverse().forEach(item => {
+        const li = document.createElement('li');
+        const isDirect = item.type === 'direct';
+        li.className = 'history-item' + (isDirect ? ' direct' : '');
+        
+        const labelText = isDirect 
+          ? `<strong>+Ksh ${item.saved.toLocaleString()}</strong> <small>(Direct Deposit)</small>`
+          : `<strong>+Ksh ${item.saved.toLocaleString()}</strong> <small>(${item.pct}% of Ksh ${item.gig.toLocaleString()})</small>`;
+
+        li.innerHTML = `
+          <div class="details">
+            <span>${labelText}</span>
+            <span class="date">${item.date}</span>
+          </div>
+        `;
+        historyList.appendChild(li);
+      });
     }
 
     function calculateSplit() {
       const amount = parseFloat(document.getElementById('gig-amount').value);
       if (isNaN(amount) || amount <= 0) return;
 
-      pendingSavings = amount * 0.20;
+      const saveRatio = parseFloat(document.getElementById('save-ratio').value) / 100;
+      pendingGig = amount;
+      pendingSavings = amount * saveRatio;
+      
+      const tradingVal = amount * 0.10;
+      const essentialsVal = amount - pendingSavings - tradingVal;
+
+      document.getElementById('save-pct-label').innerText = (saveRatio * 100).toFixed(0);
       document.getElementById('save-split').innerText = pendingSavings.toLocaleString();
-      document.getElementById('essentials-split').innerText = (amount * 0.70).toLocaleString();
-      document.getElementById('trading-split').innerText = (amount * 0.10).toLocaleString();
+      document.getElementById('essentials-split').innerText = Math.max(0, essentialsVal).toLocaleString();
+      document.getElementById('trading-split').innerText = tradingVal.toLocaleString();
 
       document.getElementById('split-results').classList.remove('hidden');
     }
 
-    function confirmDeposit() {
-      currentSavings += pendingSavings;
-      localStorage.setItem('loopSavings', currentSavings);
+    function confirmGigDeposit() {
+      const ratioVal = document.getElementById('save-ratio').value;
+      saveDeposit(pendingSavings, {
+        type: 'gig',
+        gig: pendingGig,
+        saved: pendingSavings,
+        pct: ratioVal,
+        date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+      });
       document.getElementById('gig-amount').value = '';
       document.getElementById('split-results').classList.add('hidden');
+    }
+
+    function confirmDirectDeposit() {
+      const amount = parseFloat(document.getElementById('direct-amount').value);
+      if (isNaN(amount) || amount <= 0) return;
+
+      saveDeposit(amount, {
+        type: 'direct',
+        saved: amount,
+        date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+      });
+      document.getElementById('direct-amount').value = '';
+    }
+
+    function saveDeposit(amount, historyItem) {
+      currentSavings += amount;
+      depositHistory.push(historyItem);
+
+      localStorage.setItem('loopSavings', currentSavings);
+      localStorage.setItem('loopHistory', JSON.stringify(depositHistory));
       updateUI();
+    }
+
+    function clearHistory() {
+      if (confirm('Reset Loop savings balance and delete all transaction logs?')) {
+        currentSavings = 0;
+        depositHistory = [];
+        localStorage.removeItem('loopSavings');
+        localStorage.removeItem('loopHistory');
+        updateUI();
+      }
+    }
+
+    function exportCSV() {
+      if (depositHistory.length === 0) {
+        alert('No history to export.');
+        return;
+      }
+      let csvContent = "data:text/csv;charset=utf-8,Date,Type,Gig Amount (Ksh),Loop Saved (Ksh)\n";
+      depositHistory.forEach(item => {
+        const type = item.type || 'gig';
+        const gig = item.gig || 0;
+        csvContent += `${item.date},${type},${gig},${item.saved}\n`;
+      });
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "loop_savings_history.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
 
     updateUI();
