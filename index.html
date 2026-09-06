@@ -3,402 +3,479 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Setup Savings Tracker</title>
+  <title>Cyber-Gear RPG Engine</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@600;700&display=swap');
+
+    :root {
+      --bg-dark: #07080d;
+      --card-bg: #0e1017;
+      --cyan-neon: #00f3ff;
+      --purple-neon: #bc13fe;
+      --pink-neon: #ff007f;
+      --gold-neon: #ffd700;
+      --green-neon: #00ff66;
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: #0f172a;
-      color: #f8fafc;
+      font-family: 'Rajdhani', -apple-system, sans-serif;
+      background-color: var(--bg-dark);
+      color: #f1f5f9;
       display: flex;
       justify-content: center;
-      padding: 20px;
+      padding: 16px;
       margin: 0;
+      min-height: 100vh;
     }
+
     .container {
-      max-width: 420px;
+      max-width: 440px;
       width: 100%;
     }
+
     h1 {
+      font-family: 'Orbitron', sans-serif;
       text-align: center;
-      font-size: 1.5rem;
-      margin-bottom: 20px;
-      color: #38bdf8;
-    }
-    .card {
-      background: #1e293b;
-      padding: 20px;
-      border-radius: 12px;
+      font-size: 1.3rem;
       margin-bottom: 16px;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-      border: 1px solid #334155;
+      color: var(--cyan-neon);
+      text-shadow: 0 0 12px rgba(0, 243, 255, 0.6);
+      letter-spacing: 2px;
     }
-    .card h2 {
-      margin-top: 0;
-      font-size: 1.25rem;
-      color: #f1f5f9;
-    }
-    .progress-container {
-      background: #334155;
-      border-radius: 8px;
-      height: 16px;
+
+    /* Character Status HUD */
+    .hud-card {
+      background: linear-gradient(135deg, #0e1017 0%, #151824 100%);
+      padding: 20px;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(188, 19, 254, 0.4);
+      box-shadow: 0 0 20px rgba(188, 19, 254, 0.15);
+      position: relative;
       overflow: hidden;
-      margin: 12px 0;
     }
-    .progress-bar {
-      background: linear-gradient(90deg, #22c55e, #4ade80);
+
+    .avatar-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .avatar-frame {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      border: 2px solid var(--cyan-neon);
+      box-shadow: 0 0 15px var(--cyan-neon);
+      background: #181b29;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+    }
+
+    .char-info {
+      flex: 1;
+    }
+
+    .rank-badge {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      color: var(--pink-neon);
+      background: rgba(255, 0, 127, 0.15);
+      border: 1px solid var(--pink-neon);
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: 1px;
+      display: inline-block;
+      margin-bottom: 4px;
+    }
+
+    .char-level {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.2rem;
+      color: #fff;
+      font-weight: 900;
+    }
+
+    /* EXP & Stats Bars */
+    .exp-container {
+      background: #08090d;
+      border-radius: 8px;
+      height: 14px;
+      overflow: hidden;
+      border: 1px solid #282c44;
+      margin-top: 6px;
+      position: relative;
+    }
+
+    .exp-bar {
+      background: linear-gradient(90deg, var(--purple-neon), var(--cyan-neon));
       height: 100%;
       width: 0%;
       transition: width 0.4s ease;
+      box-shadow: 0 0 10px var(--cyan-neon);
     }
-    
-    /* Milestone Badges */
-    .milestones {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 12px;
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.1);
     }
-    .badge {
-      background: #0f172a;
+
+    .stat-box {
+      background: rgba(0, 0, 0, 0.3);
       padding: 8px 12px;
       border-radius: 6px;
-      font-size: 0.8rem;
+      border-left: 3px solid var(--cyan-neon);
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+    }
+
+    .stat-val {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    /* Target Milestones */
+    .target-card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 10px;
+      border: 1px solid #1e2235;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .target-card.attained {
+      border-color: var(--green-neon);
+      background: rgba(0, 255, 102, 0.05);
+      box-shadow: 0 0 18px rgba(0, 255, 102, 0.25);
+      animation: auraPulse 2s infinite alternate;
+    }
+
+    @keyframes auraPulse {
+      0% { box-shadow: 0 0 12px rgba(0, 255, 102, 0.2); }
+      100% { box-shadow: 0 0 22px rgba(0, 255, 102, 0.4); }
+    }
+
+    .target-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border: 1px solid #334155;
-      color: #64748b;
-    }
-    .badge.unlocked {
-      border-color: #22c55e;
-      color: #22c55e;
-      background: rgba(34, 197, 94, 0.1);
-      font-weight: bold;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
     }
 
-    /* Tabs */
-    .tab-container {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .tab-btn {
-      flex: 1;
-      padding: 8px;
-      font-size: 0.85rem;
-      background: #0f172a;
-      color: #94a3b8;
-      border: 1px solid #334155;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-top: 0;
-    }
-    .tab-btn.active {
-      background: #2563eb;
-      color: #fff;
-      border-color: #2563eb;
+    /* UI Inputs & Buttons */
+    .input-card {
+      background: var(--card-bg);
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      border: 1px solid #1a1d2e;
     }
 
-    input, button, select {
+    input, button {
       width: 100%;
       padding: 12px;
       margin-top: 8px;
       border-radius: 8px;
-      border: 1px solid #475569;
-      background: #0f172a;
+      border: 1px solid #282c44;
+      background: #07080d;
       color: #ffffff;
       font-size: 1rem;
+      font-family: 'Rajdhani', sans-serif;
       box-sizing: border-box;
     }
+
+    input:focus {
+      outline: none;
+      border-color: var(--cyan-neon);
+      box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+    }
+
     button {
-      background: #2563eb;
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(90deg, var(--purple-neon), #2563eb);
       color: #ffffff;
-      font-weight: bold;
+      font-weight: 700;
       cursor: pointer;
       border: none;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
-    button:hover { background: #1d4ed8; }
 
-    .btn-secondary {
-      background: #334155;
-      font-size: 0.8rem;
-      padding: 6px 10px;
-      margin-top: 0;
-      width: auto;
-    }
-    .btn-secondary:hover { background: #475569; }
-
-    .btn-danger {
-      background: #ef4444;
-      font-size: 0.8rem;
-      padding: 6px 10px;
-      margin-top: 0;
-      width: auto;
-    }
-    .btn-danger:hover { background: #dc2626; }
-
-    .hidden { display: none; }
-    
-    .split-box {
-      background: #0f172a;
-      padding: 12px;
-      border-radius: 8px;
-      margin-top: 12px;
-      border-left: 4px solid #3b82f6;
-    }
-    .slider-group {
-      margin-top: 10px;
-      font-size: 0.85rem;
-      color: #94a3b8;
-    }
-    .slider-group input { padding: 0; margin-top: 4px; }
-    .accent { color: #22c55e; font-weight: bold; }
-
-    /* History List */
+    /* History Log */
     .history-list {
       list-style: none;
       padding: 0;
-      margin: 12px 0 0 0;
-      max-height: 200px;
+      margin: 10px 0 0 0;
+      max-height: 160px;
       overflow-y: auto;
     }
+
     .history-item {
-      background: #0f172a;
-      padding: 10px 12px;
+      background: #08090d;
+      padding: 8px 12px;
       border-radius: 6px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      border-left: 3px solid #22c55e;
-      font-size: 0.9rem;
+      border-left: 3px solid var(--purple-neon);
+      font-size: 0.85rem;
     }
-    .history-item.direct { border-left-color: #38bdf8; }
-    .history-item .details { display: flex; flex-direction: column; }
-    .history-item .date { font-size: 0.75rem; color: #94a3b8; }
-    .empty-history { color: #94a3b8; font-size: 0.875rem; font-style: italic; margin: 8px 0; }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <h1>🚀 Setup Target Tracker</h1>
+    <h1>⚡ CYBER-GEAR RPG SYSTEM</h1>
 
-    <div class="card">
-      <h2>Goal: Ksh <span id="target-amount">170,000</span></h2>
-      <p>Loop Balance: <span class="accent">Ksh <span id="current-savings">0</span></span></p>
-      <div class="progress-container">
-        <div class="progress-bar" id="progress-bar"></div>
-      </div>
-      <p id="progress-percent" style="text-align: right; margin: 0; font-size: 0.875rem; color: #94a3b8;">0% Complete</p>
-
-      <div class="milestones">
-        <div class="badge" id="m1">📱 Infinix GT 30 Pro <span>Ksh 38,000</span></div>
-        <div class="badge" id="m2">📸 Canon EOS 2000D <span>Ksh 89,000</span></div>
-        <div class="badge" id="m3">🎮 PS5 Slim + Setup <span>Ksh 170,000</span></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="tab-container">
-        <button class="tab-btn active" id="tab-gig-btn" onclick="switchTab('gig')">Gig Split</button>
-        <button class="tab-btn" id="tab-direct-btn" onclick="switchTab('direct')">Direct Deposit</button>
-      </div>
-
-      <div id="mode-gig">
-        <label for="gig-amount" style="font-size: 0.875rem; color: #94a3b8;">Payout Amount (Ksh):</label>
-        <input type="number" id="gig-amount" placeholder="e.g. 5000">
-
-        <div class="slider-group">
-          <label>Savings Allocation Ratio: <strong id="ratio-val" class="accent">20%</strong></label>
-          <input type="range" id="save-ratio" min="5" max="50" value="20" oninput="updateRatioLabel()">
-        </div>
-
-        <button onclick="calculateSplit()">Calculate Split</button>
-
-        <div id="split-results" class="hidden">
-          <div class="split-box">
-            <p style="margin: 4px 0;">🔒 <strong>Loop Savings (<span id="save-pct-label">20</span>%):</strong> Ksh <span id="save-split">0</span></p>
-            <p style="margin: 4px 0;">🛒 Essentials: Ksh <span id="essentials-split">0</span></p>
-            <p style="margin: 4px 0;">📈 Trading Buffer (10%): Ksh <span id="trading-split">0</span></p>
+    <!-- Character Status HUD -->
+    <div class="hud-card">
+      <div class="avatar-header">
+        <div class="avatar-frame">⚡</div>
+        <div class="char-info">
+          <span class="rank-badge" id="rank-title">E-RANK NOVICE</span>
+          <div class="char-level">LEVEL <span id="char-level">0</span></div>
+          <div class="exp-container">
+            <div class="exp-bar" id="exp-bar"></div>
           </div>
-          <button onclick="confirmGigDeposit()" style="background: #16a34a;">Confirm & Deposit to Loop</button>
+          <div style="font-size: 0.7rem; color: #94a3b8; text-align: right; margin-top: 2px;">
+            EXP: <span id="exp-current">0</span> / 1,000
+          </div>
         </div>
       </div>
 
-      <div id="mode-direct" class="hidden">
-        <label for="direct-amount" style="font-size: 0.875rem; color: #94a3b8;">Direct Loop Transfer (Ksh):</label>
-        <input type="number" id="direct-amount" placeholder="e.g. 1000">
-        <button onclick="confirmDirectDeposit()" style="background: #38bdf8; color: #0f172a;">Log Direct Transfer</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <h3 style="margin: 0;">📜 Loop History</h3>
-        <div>
-          <button onclick="exportCSV()" class="btn-secondary">Export CSV</button>
-          <button onclick="clearHistory()" class="btn-danger">Clear</button>
+      <!-- Live Vault & Interest Stats -->
+      <div class="stat-grid">
+        <div class="stat-box" style="border-left-color: var(--cyan-neon);">
+          <div class="stat-label">Loop Vault</div>
+          <div class="stat-val">Ksh <span id="vault-total">0</span></div>
+        </div>
+        <div class="stat-box" style="border-left-color: var(--gold-neon);">
+          <div class="stat-label">Passive MP (7.3% p.a.)</div>
+          <div class="stat-val" style="color: var(--gold-neon);">+Ksh <span id="monthly-interest">0</span>/mo</div>
         </div>
       </div>
-      <ul id="history-list" class="history-list"></ul>
     </div>
 
+    <!-- Active Gear Targets -->
+    <div class="input-card">
+      <h2 style="font-family: 'Orbitron', sans-serif; font-size: 1rem; margin: 0 0 10px 0; color: #fff;">
+        🎯 Gear Quests
+      </h2>
+
+      <!-- Target 1 -->
+      <div class="target-card" id="quest-1">
+        <div class="target-header">
+          <span>1. Infinix GT 30 Pro</span>
+          <span style="color: var(--cyan-neon);">Ksh 38,000</span>
+        </div>
+        <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 4px;" id="rem-1">
+          Remaining: Ksh 38,000
+        </div>
+      </div>
+
+      <!-- Target 2 -->
+      <div class="target-card" id="quest-2">
+        <div class="target-header">
+          <span>2. Canon EOS 2000D</span>
+          <span style="color: var(--cyan-neon);">Ksh 51,000</span>
+        </div>
+        <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 4px;" id="rem-2">
+          Unlocks after Phone
+        </div>
+      </div>
+
+      <!-- Target 3 -->
+      <div class="target-card" id="quest-3">
+        <div class="target-header">
+          <span>3. PS5 Slim Setup</span>
+          <span style="color: var(--cyan-neon);">Ksh 81,000</span>
+        </div>
+        <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 4px;" id="rem-3">
+          Unlocks after Camera
+        </div>
+      </div>
+    </div>
+
+    <!-- Deposit Power-Up Action -->
+    <div class="input-card">
+      <label style="font-size: 0.8rem; color: #94a3b8;">Log Gig / Loop Transfer (Ksh):</label>
+      <input type="number" id="deposit-input" placeholder="e.g. 5000">
+      <button onclick="logPowerUp()" style="margin-top: 10px;">⚡ Gain EXP / Power Up</button>
+    </div>
+
+    <!-- History Logs -->
+    <div class="input-card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0; font-size: 0.9rem; font-family: 'Orbitron', sans-serif;">📜 Quest Logs</h3>
+        <button onclick="resetVault()" style="width: auto; padding: 4px 8px; font-size: 0.7rem; background: #ef4444;">Reset</button>
+      </div>
+      <ul id="log-list" class="history-list"></ul>
+    </div>
   </div>
 
   <script>
-    const GOAL = 170000;
-    let currentSavings = parseFloat(localStorage.getItem('loopSavings')) || 0;
-    let depositHistory = JSON.parse(localStorage.getItem('loopHistory')) || [];
-    let pendingSavings = 0;
-    let pendingGig = 0;
+    const TARGET_PHONE = 38000;
+    const TARGET_CAMERA = 51000;
+    const TARGET_PS5 = 81000;
 
-    function switchTab(mode) {
-      if (mode === 'gig') {
-        document.getElementById('mode-gig').classList.remove('hidden');
-        document.getElementById('mode-direct').classList.add('hidden');
-        document.getElementById('tab-gig-btn').classList.add('active');
-        document.getElementById('tab-direct-btn').classList.remove('active');
+    let vaultBalance = parseFloat(localStorage.getItem('rpgVault')) || 0;
+    let logs = JSON.parse(localStorage.getItem('rpgLogs')) || [];
+
+    function updateRPGSystem() {
+      // 1. Vault & Interest Calculations (7.3% p.a.)
+      const annualRate = 0.073;
+      const monthlyRate = annualRate / 12;
+      const monthlyYield = vaultBalance * monthlyRate;
+
+      document.getElementById('vault-total').innerText = vaultBalance.toLocaleString();
+      document.getElementById('monthly-interest').innerText = Math.round(monthlyYield).toLocaleString();
+
+      // 2. Character Level & EXP System (1 Level = Ksh 1,000)
+      const level = Math.floor(vaultBalance / 1000);
+      const currentEXP = vaultBalance % 1000;
+      const expPercent = (currentEXP / 1000) * 100;
+
+      document.getElementById('char-level').innerText = level;
+      document.getElementById('exp-current').innerText = Math.round(currentEXP).toLocaleString();
+      document.getElementById('exp-bar').style.width = expPercent + '%';
+
+      // 3. Rank Assignment based on Level
+      const rankTitle = document.getElementById('rank-title');
+      if (level >= 170) {
+        rankTitle.innerText = "S-RANK PHANTOM";
+        rankTitle.style.color = "var(--gold-neon)";
+      } else if (level >= 89) {
+        rankTitle.innerText = "A-RANK OPERATIVE";
+        rankTitle.style.color = "var(--green-neon)";
+      } else if (level >= 38) {
+        rankTitle.innerText = "B-RANK HUNTER";
+        rankTitle.style.color = "var(--cyan-neon)";
       } else {
-        document.getElementById('mode-gig').classList.add('hidden');
-        document.getElementById('mode-direct').classList.remove('hidden');
-        document.getElementById('tab-gig-btn').classList.remove('active');
-        document.getElementById('tab-direct-btn').classList.add('active');
+        rankTitle.innerText = "E-RANK NOVICE";
+        rankTitle.style.color = "var(--pink-neon)";
+      }
+
+      // 4. Milestone Quests (Aura Glows)
+      updateQuestCards();
+
+      // 5. Render Logs
+      renderLogs();
+    }
+
+    function updateQuestCards() {
+      // Quest 1: Phone
+      const q1 = document.getElementById('quest-1');
+      const rem1 = document.getElementById('rem-1');
+      if (vaultBalance >= TARGET_PHONE) {
+        q1.classList.add('attained');
+        rem1.innerText = "⚡ ATTAINED & FUNDED!";
+        rem1.style.color = "var(--green-neon)";
+      } else {
+        q1.classList.remove('attained');
+        rem1.innerText = "Remaining: Ksh " + (TARGET_PHONE - vaultBalance).toLocaleString();
+        rem1.style.color = "#94a3b8";
+      }
+
+      // Quest 2: Camera (Threshold = 89,000)
+      const q2 = document.getElementById('quest-2');
+      const rem2 = document.getElementById('rem-2');
+      const totalCamera = TARGET_PHONE + TARGET_CAMERA;
+      if (vaultBalance >= totalCamera) {
+        q2.classList.add('attained');
+        rem2.innerText = "📸 ATTAINED & FUNDED!";
+        rem2.style.color = "var(--green-neon)";
+      } else if (vaultBalance >= TARGET_PHONE) {
+        q2.classList.remove('attained');
+        rem2.innerText = "Remaining: Ksh " + (totalCamera - vaultBalance).toLocaleString();
+        rem2.style.color = "#94a3b8";
+      } else {
+        q2.classList.remove('attained');
+        rem2.innerText = "Unlocks after Phone";
+        rem2.style.color = "#64748b";
+      }
+
+      // Quest 3: PS5 Setup (Threshold = 170,000)
+      const q3 = document.getElementById('quest-3');
+      const rem3 = document.getElementById('rem-3');
+      const totalPS5 = totalCamera + TARGET_PS5;
+      if (vaultBalance >= totalPS5) {
+        q3.classList.add('attained');
+        rem3.innerText = "🎮 S-RANK GOAL ATTAINED!";
+        rem3.style.color = "var(--gold-neon)";
+      } else if (vaultBalance >= totalCamera) {
+        q3.classList.remove('attained');
+        rem3.innerText = "Remaining: Ksh " + (totalPS5 - vaultBalance).toLocaleString();
+        rem3.style.color = "#94a3b8";
+      } else {
+        q3.classList.remove('attained');
+        rem3.innerText = "Unlocks after Camera";
+        rem3.style.color = "#64748b";
       }
     }
 
-    function updateRatioLabel() {
-      const val = document.getElementById('save-ratio').value;
-      document.getElementById('ratio-val').innerText = val + '%';
-      if (!document.getElementById('split-results').classList.contains('hidden')) {
-        calculateSplit();
-      }
+    function logPowerUp() {
+      const val = parseFloat(document.getElementById('deposit-input').value);
+      if (isNaN(val) || val <= 0) return;
+
+      vaultBalance += val;
+      logs.push({
+        amount: val,
+        date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+      });
+
+      localStorage.setItem('rpgVault', vaultBalance);
+      localStorage.setItem('rpgLogs', JSON.stringify(logs));
+
+      document.getElementById('deposit-input').value = '';
+      updateRPGSystem();
     }
 
-    function updateUI() {
-      document.getElementById('current-savings').innerText = currentSavings.toLocaleString();
-      const percentage = Math.min((currentSavings / GOAL) * 100, 100).toFixed(1);
-      document.getElementById('progress-bar').style.width = percentage + '%';
-      document.getElementById('progress-percent').innerText = percentage + '% Complete';
+    function renderLogs() {
+      const logList = document.getElementById('log-list');
+      logList.innerHTML = '';
 
-      // Update Milestones
-      document.getElementById('m1').classList.toggle('unlocked', currentSavings >= 38000);
-      document.getElementById('m2').classList.toggle('unlocked', currentSavings >= 89000);
-      document.getElementById('m3').classList.toggle('unlocked', currentSavings >= 170000);
-
-      // Update History List
-      const historyList = document.getElementById('history-list');
-      historyList.innerHTML = '';
-
-      if (depositHistory.length === 0) {
-        historyList.innerHTML = '<p class="empty-history">No deposits logged yet.</p>';
+      if (logs.length === 0) {
+        logList.innerHTML = '<li style="color:#64748b; font-size:0.8rem; padding:4px 0;">No power-ups logged yet.</li>';
         return;
       }
 
-      depositHistory.slice().reverse().forEach(item => {
+      logs.slice().reverse().forEach(item => {
         const li = document.createElement('li');
-        const isDirect = item.type === 'direct';
-        li.className = 'history-item' + (isDirect ? ' direct' : '');
-        
-        const labelText = isDirect 
-          ? `<strong>+Ksh ${item.saved.toLocaleString()}</strong> <small>(Direct Deposit)</small>`
-          : `<strong>+Ksh ${item.saved.toLocaleString()}</strong> <small>(${item.pct}% of Ksh ${item.gig.toLocaleString()})</small>`;
-
+        li.className = 'history-item';
         li.innerHTML = `
-          <div class="details">
-            <span>${labelText}</span>
-            <span class="date">${item.date}</span>
-          </div>
+          <span>+Ksh ${item.amount.toLocaleString()} EXP</span>
+          <span style="color:#64748b; font-size:0.75rem;">${item.date}</span>
         `;
-        historyList.appendChild(li);
+        logList.appendChild(li);
       });
     }
 
-    function calculateSplit() {
-      const amount = parseFloat(document.getElementById('gig-amount').value);
-      if (isNaN(amount) || amount <= 0) return;
-
-      const saveRatio = parseFloat(document.getElementById('save-ratio').value) / 100;
-      pendingGig = amount;
-      pendingSavings = amount * saveRatio;
-      
-      const tradingVal = amount * 0.10;
-      const essentialsVal = amount - pendingSavings - tradingVal;
-
-      document.getElementById('save-pct-label').innerText = (saveRatio * 100).toFixed(0);
-      document.getElementById('save-split').innerText = pendingSavings.toLocaleString();
-      document.getElementById('essentials-split').innerText = Math.max(0, essentialsVal).toLocaleString();
-      document.getElementById('trading-split').innerText = tradingVal.toLocaleString();
-
-      document.getElementById('split-results').classList.remove('hidden');
-    }
-
-    function confirmGigDeposit() {
-      const ratioVal = document.getElementById('save-ratio').value;
-      saveDeposit(pendingSavings, {
-        type: 'gig',
-        gig: pendingGig,
-        saved: pendingSavings,
-        pct: ratioVal,
-        date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-      });
-      document.getElementById('gig-amount').value = '';
-      document.getElementById('split-results').classList.add('hidden');
-    }
-
-    function confirmDirectDeposit() {
-      const amount = parseFloat(document.getElementById('direct-amount').value);
-      if (isNaN(amount) || amount <= 0) return;
-
-      saveDeposit(amount, {
-        type: 'direct',
-        saved: amount,
-        date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-      });
-      document.getElementById('direct-amount').value = '';
-    }
-
-    function saveDeposit(amount, historyItem) {
-      currentSavings += amount;
-      depositHistory.push(historyItem);
-
-      localStorage.setItem('loopSavings', currentSavings);
-      localStorage.setItem('loopHistory', JSON.stringify(depositHistory));
-      updateUI();
-    }
-
-    function clearHistory() {
-      if (confirm('Reset Loop savings balance and delete all transaction logs?')) {
-        currentSavings = 0;
-        depositHistory = [];
-        localStorage.removeItem('loopSavings');
-        localStorage.removeItem('loopHistory');
-        updateUI();
+    function resetVault() {
+      if (confirm("Reset character stats and vault balance?")) {
+        vaultBalance = 0;
+        logs = [];
+        localStorage.removeItem('rpgVault');
+        localStorage.removeItem('rpgLogs');
+        updateRPGSystem();
       }
     }
 
-    function exportCSV() {
-      if (depositHistory.length === 0) {
-        alert('No history to export.');
-        return;
-      }
-      let csvContent = "data:text/csv;charset=utf-8,Date,Type,Gig Amount (Ksh),Loop Saved (Ksh)\n";
-      depositHistory.forEach(item => {
-        const type = item.type || 'gig';
-        const gig = item.gig || 0;
-        csvContent += `${item.date},${type},${gig},${item.saved}\n`;
-      });
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", "loop_savings_history.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-    updateUI();
+    updateRPGSystem();
   </script>
-
 </body>
-</html>
+  </html>
